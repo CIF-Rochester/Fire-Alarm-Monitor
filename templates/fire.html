@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:line-height="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name=viewport content='width=700'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIF Alarm Tracker</title>
+    <link rel="icon" href="static/fire.gif" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        html,
+        body {
+            font-size: 1.25rem;
+            background-color:{{color}};
+        }
+
+        #root {
+            width: fit-content;
+            height: 98vh;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-flow: column;
+        }
+
+        #header {
+            margin-bottom: 3rem;
+            text-align: center;
+            color:#ff0000;
+            font-family:'Courier new';
+        }
+
+
+        #header>div:first-child {
+            padding-right: 1rem;
+            font-size: 1.75rem;
+        }
+
+        #header>div:nth-child(2) {
+
+            font-size: 1rem;
+            text-overflow: ellipsis;
+        }
+
+        #mainBody {
+            flex: 1;
+        }
+
+        summary {
+            text-align: center;
+            color:#ffff00;
+            font-family:'Courier new';
+            font-size: 1.75rem;
+        }
+
+        details {
+            text-align: center;
+            color:#ffffff;
+            font-family:'Courier new';
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<!-- ToDo: Inherit from a base template -->
+<body>
+    <div id="root" >
+        <div id="header">
+            <div>CIF Alarm Tracker</div>
+        </div>
+        <div id="mainBody">
+            {% for floor in floor_data %}
+              <details>
+                <summary>{{floor.name}} - {{floor.summary}}</summary>
+                  {% for alarm in floor.data %}
+                    <p>{{alarm}}</p>
+                  {% endfor %}
+              </details>
+            {% endfor %}S
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
