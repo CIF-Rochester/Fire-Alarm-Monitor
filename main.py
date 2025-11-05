@@ -30,52 +30,54 @@ def makeLogger(logFile):
 
 
 def set_data(data: list[Floor_Data], file: str):
+    latest_alarm_date = None
     with open(file, 'r') as f:
         content = f.read()
     for line in content.split("\n"):
-        line_split = line.split(",")
-        floor: int = 0
-        if not line_split[0][:1].lower() == 'b':
-            floor = int(line_split[0][:1])
-        data[floor].summary += 1
-        data[floor].data.append(f"{line_split[0]} - {line_split[1]} {line_split[2]}")
+        if not line.strip(): continue
+
+        try:
+            line_split = line.strip().split(",")
+            # Populate floor data
+            floor: int = 0
+            if not line_split[0][:1].lower() == 'b':
+                floor = int(line_split[0][:1])
+            data[floor].summary += 1
+            data[floor].data.append(f"{line_split[0]} - {line_split[1]} {line_split[2]}")
+
+            # Find latest alarm date
+            date_str = line_split[1].strip()
+            current_alarm_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            if latest_alarm_date is None or current_alarm_date > latest_alarm_date:
+                latest_alarm_date = current_alarm_date
+        except (IndexError, ValueError):
+            continue
+
+    return latest_alarm_date
 
 
 @app.route('/', methods=['GET', 'POST'])
 def update_file():
     if request.method == 'GET':
+        # Create alarms.txt if it doesn't exist
+        if not os.path.exists("alarms.txt"):
+            with open("alarms.txt", "w"):
+                pass
+
         data = []
         for i in range(10):
             if i == 0:
                 data.append(Floor_Data(name='Basement', summary=0, data=[]))
             else:
                 data.append(Floor_Data(name=f'Floor {i}', summary=0, data=[]))
-        set_data(data, "alarms.txt")
 
-        latest_alarm_date = None
+        latest_alarm_date = set_data(data, "alarms.txt")
+
         days_since = "NaN"
-
-        try:
-            with open("alarms.txt", 'r') as f:
-                for line in f:
-                    if not line.strip(): continue
-
-                    # get dates
-                    parts = line.split(',')
-                    date_str = parts[1].strip()
-                    current_alarm_date = datetime.strptime(date_str,'%Y-%m-%d').date()
-
-                    # check if this alarm is the latest, if so update latest_alarm_date
-                    if latest_alarm_date is None or current_alarm_date > latest_alarm_date: latest_alarm_date = current_alarm_date
-
-            if latest_alarm_date:
-                # get date difference
-                today = datetime.now().date()
-                difference = today - latest_alarm_date
-                days_since = difference.days
-
-        except (FileNotFoundError,IndexError):
-            days_since = "Error reading file or file not found" # yeah ehren look at my planning for not having a file
+        if latest_alarm_date:
+            today = datetime.now().date()
+            difference = today - latest_alarm_date
+            days_since = difference.days
 
         return render_template('fire.html', color=BACKGROUND_COLOR, floor_data=data, days_since=days_since)
 
