@@ -26,7 +26,7 @@
         }
 
         #header {
-            margin-bottom: 3rem;
+            margin-bottom: 0.1rem;
             text-align: center;
             color:#ff0000;
             font-family:'Courier new';
@@ -35,7 +35,7 @@
 
         #header>div:first-child {
             padding-right: 1rem;
-            font-size: 1.75rem;
+            font-size: 2rem;
         }
 
         #header>div:nth-child(2) {
@@ -44,22 +44,52 @@
             text-overflow: ellipsis;
         }
 
+        #splash {
+            text-align: center;
+            color:#00ffff;
+            font-family:'Courier new';
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.1rem;
+            margin-bottom: 2rem;
+        }
+
         #mainBody {
             flex: 1;
         }
 
-        summary {
+        #summary {
             text-align: center;
             color:#ffff00;
             font-family:'Courier new';
             font-size: 1.75rem;
+            cursor: pointer;
         }
 
-        details {
+        #alarms {
             text-align: center;
             color:#ffffff;
             font-family:'Courier new';
             font-size: 1rem;
+            display: none;
+        }
+        #footer {
+            margin-bottom: 3rem;
+            text-align: center;
+            color:#ff0000;
+            font-family:'Courier new';
+        }
+        .third {
+            width: 33%;
+            display: inline-block;
+        }
+        #archive_page {
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            color:#ffffff;
+            font-size: 1rem;
+            font-family:'Courier new';
         }
     </style>
 </head>
@@ -70,15 +100,40 @@
         <div id="header">
             <div>CIF Alarm Tracker</div>
         </div>
+            <div id="splash">
+                <div>Now for Windows 95!!!</div>
+            </div>
         <div id="mainBody">
+            <script type="text/javascript">
+            function toggle(className, arrowID) {
+                var element = document.getElementById(className);
+                var arrow = document.getElementById(arrowID);
+                if (element.style.display === "none"){
+                    element.style.display = "block";
+                    arrow.innerHTML = "+"
+                } else {
+                    element.style.display = "none";
+                    arrow.innerHTML = ">"
+                }
+            }
+          </script>
             {% for floor in floor_data %}
-              <details>
-                <summary>{{floor.name}} - {{floor.summary}}</summary>
-                  {% for alarm in floor.data %}
-                    <p>{{alarm}}</p>
-                  {% endfor %}
-              </details>
-            {% endfor %}S
+                  <div id="summary" onclick="toggle('{{floor.name}}', 'arrow_{{floor.name}}')">
+                    <span id='arrow_{{floor.name}}'> ></span> {{floor.name}} - {{floor.summary}}
+                  </div>
+                    <div id='{{floor.name}}' style="text-align: center;color:#ffffff;font-family:'Courier new';font-size: 1rem;display: none;">
+                        <p>{{floor.alarms_str | safe}}</p>
+                    </div>
+            {% endfor %}
+            <div style="text-align: center;color:#ffffff;font-family:'Courier new';font-size: 1.75rem;">Total: {{total}}</div>
+        </div>
+        <div id="footer">
+            <div id="add">
+                Days since last alarm: {{days}}
+            </div>
+            {% for archive_page in archive %}
+                <div class="third"><a id="archive_page" href="{{archive_page.url}}">{{archive_page.name}}</a></div>
+            {% endfor %}
         </div>
     </div>
 </div>
